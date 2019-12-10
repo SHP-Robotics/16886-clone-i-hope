@@ -75,13 +75,6 @@ public class BaseRobot extends OpMode {
         color_sensor.enableLed(true);
         startLight=color_sensor.alpha();
 
-        //skystoneBlue=0;
-        //nothingBlue=0;
-
-        //leftFrontDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //rightFrontDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //leftBackDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //rightBackDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void start() {
@@ -109,11 +102,9 @@ public class BaseRobot extends OpMode {
         telemetry.addData("line detected: ", detect_line());
         telemetry.addData("blue/red: ", (double) color_sensor.blue()/(double) color_sensor.red());
         telemetry.addData("distance (in): ", distance_sensor.getDistance(DistanceUnit.INCH));
-        telemetry.addData("version: ", color_sensor.getVersion());
         telemetry.update();
     }
 
-    //doesn't work with distances less than 3 inches
     public boolean auto_drive(double power, double inches) {
 
         double TARGET_ENC = ConstantVariables.K_PPIN_DRIVE * (inches);
@@ -122,13 +113,15 @@ public class BaseRobot extends OpMode {
         double left_speed = -power;
         double right_speed = power;
 
+        /**
         double error = -get_left_front_drive_motor_enc() - get_right_front_drive_motor_enc();
         error /= ConstantVariables.K_DRIVE_ERROR_P;
         telemetry.addData("error: ", error);
         telemetry.update();
 
-        //left_speed += error;
-        //right_speed -= error;
+        left_speed += error;
+        right_speed -= error;
+         */
         if (Math.abs(get_right_front_drive_motor_enc()) >= TARGET_ENC) {
             leftFrontDriveMotor.setPower(0);
             leftBackDriveMotor.setPower(0);
@@ -152,7 +145,6 @@ public class BaseRobot extends OpMode {
      * @return Whether the target angle has been reached.
      */
 
-    //positive is right, negative is left
     public boolean auto_turn(double power, double degrees) {
         double TARGET_ENC = Math.abs(ConstantVariables.K_PPDEG_DRIVE * degrees);
         telemetry.addData("D99 TURNING TO ENC: ", TARGET_ENC);
@@ -174,27 +166,26 @@ public class BaseRobot extends OpMode {
         }
     }
 
-    //positive for right, negative for left
     public boolean auto_mecanum(double power, double inches) {
         double TARGET_ENC = ConstantVariables.K_PPIN_DRIVE * (inches);
         telemetry.addData("Target_enc: ", TARGET_ENC);
-        //-4
-        //* (inches -7) / 1.34131
 
         double leftFrontPower = Range.clip(0 - power, -1.0, 1.0);
         double leftBackPower = Range.clip(0 + power, -1.0, 1.0);
         double rightFrontPower = Range.clip(0 - power, -1.0, 1.0);
         double rightBackPower = Range.clip(0 + power, -1.0, 1.0);
 
-        //double error = -get_left_front_drive_motor_enc() - get_right_back_drive_motor_enc();
-        //error /= ConstantVariables.K_DRIVE_ERROR_P;
-        //telemetry.addData("error: ", error);
-        //telemetry.update();
+        /**
+        double error = -get_left_front_drive_motor_enc() - get_right_back_drive_motor_enc();
+        error /= ConstantVariables.K_DRIVE_ERROR_P;
+        telemetry.addData("error: ", error);
+        telemetry.update();
 
-        //leftBackPower -= error;
-        //rightBackPower -= error;
-        //rightFrontPower += error;
-        //leftFrontPower += error;
+        leftBackPower -= error;
+        rightBackPower -= error;
+        rightFrontPower += error;
+        leftFrontPower += error;
+        */
 
         if (Math.abs(get_right_front_drive_motor_enc()) >= TARGET_ENC) {
             leftFrontDriveMotor.setPower(0);
@@ -361,7 +352,6 @@ public class BaseRobot extends OpMode {
         }
     }
 
-    //>3.5 or <2.5
     public boolean detect_line() {
         if (distance_sensor.getDistance(DistanceUnit.INCH)<ConstantVariables.K_STONE_DETECTION_DISTANCE) {
             return true;
