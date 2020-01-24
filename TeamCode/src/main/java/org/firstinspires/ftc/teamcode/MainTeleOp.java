@@ -48,20 +48,16 @@ public class MainTeleOp extends BaseRobot {
 
         //base mover
         if(gamepad1.left_bumper) {
-            base_mover(1);
+            base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_DOWN, ConstantVariables.K_BASE_SERVO_LEFT_DOWN);
         } else if (gamepad1.right_bumper){
-            base_mover(-1);
-        } else {
-            baseMoverMotor.setPower(0);
+            base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_UP, ConstantVariables.K_BASE_SERVO_LEFT_UP);
         }
 
         //claw
-        if (gamepad1.right_trigger>0.00) {
-            set_claw_servo_1(ConstantVariables.K_CLAW_SERVO_1_CLOSED);
-            set_claw_servo_2(ConstantVariables.K_CLAW_SERVO_2_CLOSED);
-        } else if (gamepad1.left_trigger>0.00) {
-            set_claw_servo_1(ConstantVariables.K_CLAW_SERVO_1_OPEN);
-            set_claw_servo_2(ConstantVariables.K_CLAW_SERVO_2_OPEN);
+        if (gamepad1.left_trigger>0.00) {
+            claw(ConstantVariables.K_CLAW_SERVO_OPEN);
+        } else if (gamepad1.right_trigger>0.00) {
+            claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
         }
     }
 }

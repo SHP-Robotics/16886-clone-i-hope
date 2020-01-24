@@ -12,7 +12,7 @@ public class BlueLoadZone2Sky extends BaseRobot {
     @Override
     public void init() {
         super.init();
-        claw_open(2);
+        claw(ConstantVariables.K_CLAW_SERVO_OPEN);
     }
 
     @Override
@@ -26,13 +26,13 @@ public class BlueLoadZone2Sky extends BaseRobot {
         super.loop();
         switch (stage) {
             case 0:
-                if (auto_drive(1, 20)) {
+                if (auto_drive(0.4, 20)) {
                     reset_drive_encoders();
                     stage++;
                 }
                 break;
             case 1:
-                if (auto_mecanum(1, 20)) {
+                if (auto_mecanum(0.4, 20)) {
                     reset_drive_encoders();
                     stage++;
                 }
@@ -57,7 +57,7 @@ public class BlueLoadZone2Sky extends BaseRobot {
                     if (auto_mecanum(0.5, -1)) {
                         block_distance = get_right_front_drive_motor_enc() / ConstantVariables.K_PPIN_DRIVE;
                         reset_drive_encoders();
-                        claw_open(1);
+                        claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
                         timer = new ElapsedTime();
                         stage++;
                     }
@@ -79,7 +79,7 @@ public class BlueLoadZone2Sky extends BaseRobot {
                 break;
             case 7:
                 //closes claw
-                claw_open(0);
+                claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
                 if (timer.seconds() > 0.5) {
                     stage++;
                 }
@@ -102,7 +102,7 @@ public class BlueLoadZone2Sky extends BaseRobot {
                 break;
             case 11:
                 //opens claw
-                claw_open(1);
+                claw(ConstantVariables.K_CLAW_SERVO_OPEN);
                 stage++;
                 break;
             case 12:
@@ -159,7 +159,7 @@ public class BlueLoadZone2Sky extends BaseRobot {
                 }
                 break;
             case 19:
-                claw_open(0);
+                claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
                 if (timer.seconds() > 0.5) {
                     stage++;
                 }
@@ -178,7 +178,7 @@ public class BlueLoadZone2Sky extends BaseRobot {
                 }
                 break;
             case 22:
-                claw_open(2);
+                claw(ConstantVariables.K_CLAW_SERVO_OPEN);
                 if (timer.seconds() > 0.75) {
                     stage++;
                 }

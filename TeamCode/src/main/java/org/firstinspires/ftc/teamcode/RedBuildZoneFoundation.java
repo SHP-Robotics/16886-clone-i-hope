@@ -8,7 +8,7 @@ public class RedBuildZoneFoundation extends BaseRobot{
     @Override
     public void init (){
         super.init();
-        claw_open(3);
+        claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
     }
 
 
@@ -28,57 +28,50 @@ public class RedBuildZoneFoundation extends BaseRobot{
                 stage++;
                 break;
             case 2:
-                if (auto_mecanum(-1, 10)) {
+                if (auto_mecanum(-0.5, 10)) {
                     reset_drive_encoders();
                     stage++;
                 }
                 break;
-
             case 3:
-                if (auto_drive(-1, 30)) {
+                if (auto_drive(0.5, 20)) {
                     reset_drive_encoders();
-                    timer = new ElapsedTime();
+                    base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_DOWN, ConstantVariables.K_BASE_SERVO_LEFT_DOWN);
                     stage++;
                 }
                 break;
             case 4:
-                if (timer.seconds()>1) {
-                    base_mover(0);
-                    reset_base_mover_encoder();
+                if (base_servo_left.getPosition()>=ConstantVariables.K_BASE_SERVO_LEFT_DOWN && base_servo_left.getPosition()<=ConstantVariables.K_BASE_SERVO_RIGHT_DOWN) {
                     stage++;
-                } else {
-                    base_mover(1);
                 }
                 break;
             case 5:
-                if (auto_drive(1.0, 40)) {
-                    reset_base_mover_encoder();
+                if (auto_drive(-0.5, 20)) {
                     reset_drive_encoders();
+                    base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_UP, ConstantVariables.K_BASE_SERVO_LEFT_UP);
                     stage++;
-                } else {
-                    base_mover(1.0);
                 }
                 break;
             case 6:
-                if (auto_base_mover(-1, 10)) {
-                    reset_base_mover_encoder();
+                if (base_servo_left.getPosition()<=ConstantVariables.K_BASE_SERVO_LEFT_UP && base_servo_left.getPosition()>=ConstantVariables.K_BASE_SERVO_RIGHT_UP){
                     stage++;
                 }
                 break;
             case 7:
-                if (auto_drive(0.5, 10)) {
+                if (auto_drive(-0.5, 10)) {
                     reset_drive_encoders();
                     stage++;
                 }
                 break;
             case 8:
-                if (auto_mecanum(1, 50)) {
+                if (auto_mecanum(0.5, 20)) {
                     reset_drive_encoders();
                     stage++;
                 }
                 break;
             case 9:
                 stage++;
+                break;
             default:
                 break;
         }

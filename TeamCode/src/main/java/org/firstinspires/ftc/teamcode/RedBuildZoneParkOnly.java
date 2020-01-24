@@ -7,7 +7,7 @@ public class RedBuildZoneParkOnly extends BaseRobot{
     @Override
     public void init (){
         super.init();
-        claw_open(3);
+        claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
     }
 
     @Override
@@ -20,7 +20,7 @@ public class RedBuildZoneParkOnly extends BaseRobot{
         super.loop();
         switch(stage) {
             case 0:
-                if (auto_mecanum(1, 40)){
+                if (auto_mecanum(0.5, 10)){
                     reset_drive_encoders();
                     stage++;
                 }
