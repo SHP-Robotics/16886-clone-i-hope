@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -60,10 +61,11 @@ public class BaseRobot extends OpMode {
 
     public double startLight;
 
-
+    /*
     BNO055IMU               imu;
     Orientation             lastAngles = new Orientation();
     double                  globalAngle, correction;
+     */
 
 
     public void init() {
@@ -83,23 +85,26 @@ public class BaseRobot extends OpMode {
         color_sensor = hardwareMap.get(ColorSensor.class, "sensorColor");
         distance_sensor = hardwareMap.get(DistanceSensor.class, "sensorColor");
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        //imu = hardwareMap.get(BNO055IMU.class, "imu");
 
         leftBackDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftFrontDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDriveMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        leftBackDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFrontDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
         claw_servo.setDirection(Servo.Direction.REVERSE);
 
         base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_UP, ConstantVariables.K_BASE_SERVO_LEFT_UP);
-        claw(ConstantVariables.K_CLAW_SERVO_OPEN);
+        claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
 
         color_sensor.enableLed(true);
         startLight=color_sensor.alpha();
 
 
-
+        /*
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.mode                = BNO055IMU.SensorMode.IMU;
@@ -116,6 +121,7 @@ public class BaseRobot extends OpMode {
 
         telemetry.addData("Mode", "calibrating...");
         telemetry.update();
+         */
 
     }
 
@@ -146,7 +152,15 @@ public class BaseRobot extends OpMode {
         telemetry.addData("line detected: ", detect_line());
         //telemetry.addData("blue/red: ", (double) color_sensor.blue()/(double) color_sensor.red());
         telemetry.addData("distance (in): ", distance_sensor.getDistance(DistanceUnit.INCH));
+        /*
+        telemetry.addData("1 imu Z heading", getAngle());
+        telemetry.addData("imu Z heading", lastAngles.firstAngle);
+        telemetry.addData("imu Y heading", lastAngles.secondAngle);
+        telemetry.addData("imu X heading", lastAngles.thirdAngle);
+        telemetry.addData("2 global heading", globalAngle);
+        telemetry.addData("3 correction", correction);
         telemetry.update();
+         */
 
     }
 
@@ -156,17 +170,9 @@ public class BaseRobot extends OpMode {
 
         telemetry.addData("Target_enc: ", TARGET_ENC);
 
-        correction = checkDirection();
+        //correction = checkDirection();
 
-        double left_speed = power - correction;
-        double right_speed = -power + correction;
-
-        telemetry.addData("1 imu Z heading", lastAngles.firstAngle);
-        telemetry.addData("imu Y heading", lastAngles.secondAngle);
-        telemetry.addData("imu X heading", lastAngles.thirdAngle);
-        telemetry.addData("2 global heading", globalAngle);
-        telemetry.addData("3 correction", correction);
-        telemetry.update();
+        double speed = -power;
 
         if (Math.abs(get_right_front_drive_motor_enc()) >= TARGET_ENC) {
             leftFrontDriveMotor.setPower(0);
@@ -175,12 +181,11 @@ public class BaseRobot extends OpMode {
             rightBackDriveMotor.setPower(0);
             return true;
         } else {
-            left_speed = Range.clip(left_speed, -1, 1);
-            right_speed = Range.clip(right_speed, -1, 1);
-            leftFrontDriveMotor.setPower(left_speed);
-            leftBackDriveMotor.setPower(left_speed);
-            rightFrontDriveMotor.setPower(right_speed);
-            rightBackDriveMotor.setPower(right_speed);
+            speed = Range.clip(speed, -1, 1);
+            leftFrontDriveMotor.setPower(speed);
+            leftBackDriveMotor.setPower(speed);
+            rightFrontDriveMotor.setPower(speed);
+            rightBackDriveMotor.setPower(speed);
             return false;
         }
     }
@@ -198,8 +203,8 @@ public class BaseRobot extends OpMode {
         double speed = Range.clip(power, -1, 1);
         leftFrontDriveMotor.setPower(-speed);
         leftBackDriveMotor.setPower(-speed);
-        rightFrontDriveMotor.setPower(-speed);
-        rightBackDriveMotor.setPower(-speed);
+        rightFrontDriveMotor.setPower(speed);
+        rightBackDriveMotor.setPower(speed);
 
         if (Math.abs(get_right_front_drive_motor_enc()) >= TARGET_ENC) {
             leftFrontDriveMotor.setPower(0);
@@ -216,8 +221,10 @@ public class BaseRobot extends OpMode {
         double TARGET_ENC = ConstantVariables.K_PPIN_DRIVE * (inches);
         telemetry.addData("Target_enc: ", TARGET_ENC);
 
-        double leftFrontPower = Range.clip(0 + power, -1.0, 1.0);
-        double leftBackPower = Range.clip(0 - power, -1.0, 1.0);
+        //correction = checkDirection();
+
+        double leftFrontPower = Range.clip(0 - power, -1.0, 1.0);
+        double leftBackPower = Range.clip(0 + power, -1.0, 1.0);
         double rightFrontPower = Range.clip(0 + power, -1.0, 1.0);
         double rightBackPower = Range.clip(0 - power, -1.0, 1.0);
 
@@ -249,10 +256,10 @@ public class BaseRobot extends OpMode {
     }
 
     public void tankanum_drive(double rightPwr, double leftPwr, double lateralpwr) {
-        leftPwr *= -1;
+        //leftPwr *= -1;
 
-        double leftFrontPower = Range.clip(leftPwr + lateralpwr, -1.0, 1.0);
-        double leftBackPower = Range.clip(leftPwr - lateralpwr, -1.0, 1.0);
+        double leftFrontPower = Range.clip(leftPwr - lateralpwr, -1.0, 1.0);
+        double leftBackPower = Range.clip(leftPwr + lateralpwr, -1.0, 1.0);
         double rightFrontPower = Range.clip(rightPwr + lateralpwr, -1.0, 1.0);
         double rightBackPower = Range.clip(rightPwr - lateralpwr, -1.0, 1.0);
 
@@ -263,8 +270,8 @@ public class BaseRobot extends OpMode {
 
     }
     public void slow_tele_right (){
-        double leftFrontPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
-        double leftBackPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftFrontPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftBackPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightFrontPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightBackPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
 
@@ -275,8 +282,8 @@ public class BaseRobot extends OpMode {
     }
 
     public void slow_tele_left (){
-        double leftFrontPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
-        double leftBackPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftFrontPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftBackPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightFrontPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightBackPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
 
@@ -287,8 +294,8 @@ public class BaseRobot extends OpMode {
     }
 
     public void slow_tele_back (){
-        double leftFrontPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
-        double leftBackPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftFrontPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftBackPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightFrontPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightBackPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
 
@@ -299,8 +306,8 @@ public class BaseRobot extends OpMode {
     }
 
     public void slow_tele_front (){
-        double leftFrontPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
-        double leftBackPower = Range.clip(ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftFrontPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
+        double leftBackPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightFrontPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
         double rightBackPower = Range.clip(-ConstantVariables.K_SLOW_POWER, -1.0, 1.0);
 
@@ -435,7 +442,7 @@ public class BaseRobot extends OpMode {
 
 
 
-
+    /*
     private void resetAngle()
     {
         lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -447,6 +454,7 @@ public class BaseRobot extends OpMode {
      * Get current cumulative angle rotation from last reset.
      * @return Angle in degrees. + = left, - = right.
      */
+    /*
     private double getAngle()
     {
         // We experimentally determined the Z axis is the axis we want to use for heading angle.
@@ -469,11 +477,14 @@ public class BaseRobot extends OpMode {
 
         return globalAngle;
     }
+    */
 
     /**
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
+
+    /*
     private double checkDirection()
     {
         // The gain value determines how sensitive the correction is to direction changes.
@@ -497,6 +508,8 @@ public class BaseRobot extends OpMode {
      * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
      * @param degrees Degrees to turn, + is left - is right
      */
+
+    /*
     private void rotate(int degrees, double power)
     {
         double  leftPower, rightPower;
@@ -547,4 +560,7 @@ public class BaseRobot extends OpMode {
         // reset angle tracking on new heading.
         resetAngle();
     }
+    */
+
+
 }

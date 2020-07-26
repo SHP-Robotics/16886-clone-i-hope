@@ -13,6 +13,7 @@ public class BlueBuildZoneParkOnly extends BaseRobot{
     @Override
     public void start (){
         super.start();
+        timer.reset();
     }
 
     @Override
@@ -20,7 +21,12 @@ public class BlueBuildZoneParkOnly extends BaseRobot{
         super.loop();
         switch(stage) {
             case 0:
-                if (auto_mecanum(-1, 40)){
+                if (timer.seconds()>=25) {
+                    stage++;
+                }
+                break;
+            case 1:
+                if (auto_mecanum(5, 1)){
                     reset_drive_encoders();
                     stage++;
                 }

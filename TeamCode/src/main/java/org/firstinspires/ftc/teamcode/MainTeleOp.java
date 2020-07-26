@@ -3,11 +3,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 @TeleOp
 
 public class MainTeleOp extends BaseRobot {
+    private boolean slow_mode;
     @Override
     public void init() {
         super.init();
         gamepad1.setJoystickDeadzone(0.001f);
         color_sensor.enableLed(false);
+        slow_mode = false;
     }
 
     @Override
@@ -16,16 +18,18 @@ public class MainTeleOp extends BaseRobot {
     }
     @Override
     public void loop() {
+
         super.loop();
-        //drive train
+
         if (gamepad1.dpad_up) {
-            slow_tele_front();
-        } else if (gamepad1.dpad_left) {
-            slow_tele_left();
-        } else if (gamepad1.dpad_right) {
-            slow_tele_right();
+            slow_mode = false;
         } else if (gamepad1.dpad_down) {
-            slow_tele_back();
+            slow_mode = true;
+        }
+
+        //drive train
+        if (slow_mode) {
+            tankanum_drive(0.3*gamepad1.right_stick_y, 0.3*gamepad1.left_stick_y, 0.3*gamepad1.right_stick_x);
         } else {
             tankanum_drive(gamepad1.right_stick_y, gamepad1.left_stick_y, gamepad1.right_stick_x);
         }

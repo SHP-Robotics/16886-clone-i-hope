@@ -8,7 +8,7 @@ public class RedBuildZoneFoundation extends BaseRobot{
     @Override
     public void init (){
         super.init();
-        claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
+        //claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
     }
 
 
@@ -22,14 +22,16 @@ public class RedBuildZoneFoundation extends BaseRobot{
         super.loop();
         switch(stage) {
             case 0:
+                arm2(-1);
                 stage++;
                 break;
             case 1:
                 stage++;
                 break;
             case 2:
-                if (auto_mecanum(-0.5, 10)) {
+                if (auto_mecanum(0.5, 5)) {
                     reset_drive_encoders();
+                    arm2(0);
                     stage++;
                 }
                 break;
@@ -37,11 +39,12 @@ public class RedBuildZoneFoundation extends BaseRobot{
                 if (auto_drive(0.5, 20)) {
                     reset_drive_encoders();
                     base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_DOWN, ConstantVariables.K_BASE_SERVO_LEFT_DOWN);
+                    timer.reset();
                     stage++;
                 }
                 break;
             case 4:
-                if (base_servo_left.getPosition()>=ConstantVariables.K_BASE_SERVO_LEFT_DOWN && base_servo_left.getPosition()<=ConstantVariables.K_BASE_SERVO_RIGHT_DOWN) {
+                if (timer.seconds()>1) {
                     stage++;
                 }
                 break;
@@ -49,22 +52,23 @@ public class RedBuildZoneFoundation extends BaseRobot{
                 if (auto_drive(-0.5, 20)) {
                     reset_drive_encoders();
                     base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_UP, ConstantVariables.K_BASE_SERVO_LEFT_UP);
+                    timer.reset();
                     stage++;
                 }
                 break;
             case 6:
-                if (base_servo_left.getPosition()<=ConstantVariables.K_BASE_SERVO_LEFT_UP && base_servo_left.getPosition()>=ConstantVariables.K_BASE_SERVO_RIGHT_UP){
+                if (timer.seconds()>1){
                     stage++;
                 }
                 break;
             case 7:
-                if (auto_drive(-0.5, 10)) {
+                if (auto_drive(-0.5, 1)) {
                     reset_drive_encoders();
                     stage++;
                 }
                 break;
             case 8:
-                if (auto_mecanum(0.5, 20)) {
+                if (auto_mecanum(-0.5, 25)) {
                     reset_drive_encoders();
                     stage++;
                 }
@@ -75,6 +79,5 @@ public class RedBuildZoneFoundation extends BaseRobot{
             default:
                 break;
         }
-
     }
 }

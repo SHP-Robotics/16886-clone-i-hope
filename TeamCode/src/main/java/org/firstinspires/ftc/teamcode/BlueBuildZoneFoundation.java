@@ -8,7 +8,7 @@ public class BlueBuildZoneFoundation extends BaseRobot{
     @Override
     public void init (){
         super.init();
-        claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
+        //claw(ConstantVariables.K_CLAW_SERVO_CLOSED);
     }
 
 
@@ -22,53 +22,53 @@ public class BlueBuildZoneFoundation extends BaseRobot{
         super.loop();
         switch(stage) {
             case 0:
+                arm2(-1);
                 stage++;
                 break;
             case 1:
                 stage++;
                 break;
             case 2:
-                if (auto_mecanum(1, 10)) {
+                if (auto_mecanum(-0.5, 5)) {
                     reset_drive_encoders();
+                    arm2(0);
                     stage++;
                 }
                 break;
             case 3:
-                if (auto_drive(1, 30)) {
+                if (auto_drive(0.5, 20)) {
                     reset_drive_encoders();
-                    timer = new ElapsedTime();
+                    base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_DOWN, ConstantVariables.K_BASE_SERVO_LEFT_DOWN);
+                    timer.reset();
                     stage++;
                 }
                 break;
             case 4:
                 if (timer.seconds()>1) {
                     stage++;
-                } else {
-                    base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_DOWN, ConstantVariables.K_BASE_SERVO_LEFT_DOWN);
                 }
                 break;
             case 5:
-                if (auto_drive(-1.0, 35)) {
+                if (auto_drive(-0.5, 20)) {
                     reset_drive_encoders();
-                    timer = new ElapsedTime();
+                    base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_UP, ConstantVariables.K_BASE_SERVO_LEFT_UP);
+                    timer.reset();
                     stage++;
                 }
                 break;
             case 6:
                 if (timer.seconds()>1){
                     stage++;
-                } else {
-                    base_mover(ConstantVariables.K_BASE_SERVO_RIGHT_UP, ConstantVariables.K_BASE_SERVO_LEFT_UP);
                 }
                 break;
             case 7:
-                if (auto_drive(-0.5, 10)) {
+                if (auto_drive(-0.5, 1)) {
                     reset_drive_encoders();
                     stage++;
                 }
                 break;
             case 8:
-                if (auto_mecanum(-1, 50)) {
+                if (auto_mecanum(0.5, 25)) {
                     reset_drive_encoders();
                     stage++;
                 }
@@ -79,6 +79,5 @@ public class BlueBuildZoneFoundation extends BaseRobot{
             default:
                 break;
         }
-
     }
 }
